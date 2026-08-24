@@ -37,3 +37,9 @@ INSERT INTO stock_talles (producto_id, talle, stock) VALUES
 (7,29,5),(7,30,7),(7,31,8),(7,32,10),(7,33,9),(7,34,6),(7,35,4),
 (8,29,4),(8,30,6),(8,31,8),(8,32,9),(8,33,7),(8,34,5),(8,35,3),
 (9,29,6),(9,30,8),(9,31,10),(9,32,9),(9,33,7),(9,34,5),(9,35,3);
+
+insert into clientes (nombre, email, telefono, direccion) values
+('Juan Perez', 'juan.perez@example.com', '123456789', 'Calle 123, Ciudad'),
+('Maria Gomez', 'maria.gomez@example.com', '987654321', 'Avenida 456, Ciudad'),
+('Carlos Rodriguez', 'carlos.rodriguez@example.com', '555555555', 'Carrera 789, Ciudad');
+

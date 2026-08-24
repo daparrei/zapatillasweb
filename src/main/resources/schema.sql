@@ -1,6 +1,7 @@
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS comprobantes_detalle;
+DROP TABLE IF EXISTS comprobantes;
 DROP TABLE IF EXISTS stock_talles;
+DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS productos;
 
 
@@ -26,32 +27,41 @@ CREATE TABLE stock_talles (
         REFERENCES productos(id)
 );
 
-
-CREATE TABLE orders (
+CREATE TABLE clientes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    fullname VARCHAR(100) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    phone_number VARCHAR(20),
-    address VARCHAR(200),
+    telefono VARCHAR(20),
+    direccion VARCHAR(200)
+);
+
+CREATE TABLE comprobantes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id BIGINT NOT NULL,
     status VARCHAR(20) NOT NULL,
     total DECIMAL(10,2) NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT fk_comprobantes_cliente
+        FOREIGN KEY (cliente_id)
+        REFERENCES clientes(id)
 );
 
 
-CREATE TABLE order_items (
+CREATE TABLE comprobantes_detalle (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    order_id BIGINT NOT NULL,
+    comprobante_id BIGINT NOT NULL,
     producto_id BIGINT NOT NULL,
     talle VARCHAR(5) NOT NULL,
     cantidad INT NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
 
-    CONSTRAINT fk_order_items_order
-        FOREIGN KEY (order_id)
-        REFERENCES orders(id),
+    CONSTRAINT fk_comprobantes_detalle_comprobantes
+        FOREIGN KEY (comprobante_id)
+        REFERENCES comprobantes(id),
 
-    CONSTRAINT fk_order_items_producto
+    CONSTRAINT fk_comprobantes_detalle_producto
         FOREIGN KEY (producto_id)
         REFERENCES productos(id)
+    
 );
