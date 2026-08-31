@@ -19,7 +19,7 @@ CREATE TABLE productos (
 CREATE TABLE stock_talles (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     producto_id BIGINT NOT NULL,
-    talle INT NOT NULL,
+    talle VARCHAR(5) NOT NULL,
     stock INT NOT NULL,
 
     CONSTRAINT fk_stock_talles_producto
