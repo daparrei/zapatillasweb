@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 /*id BIGINT AUTO_INCREMENT PRIMARY KEY,
     comprobante_id BIGINT NOT NULL,
@@ -30,9 +32,10 @@ public class ComprobanteDetalle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
+    
     @ManyToOne
     @JoinColumn(name = "comprobante_id", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Comprobante comprobante;
 
     @ManyToOne

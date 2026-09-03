@@ -3,6 +3,8 @@ package com.example.zapatillasweb.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,6 +12,7 @@ import com.example.zapatillasweb.entity.ComprobanteDetalle;
 import com.example.zapatillasweb.service.ComprobanteDetalleService;
 import org.springframework.http.MediaType;
 
+import java.net.URI;
 import java.util.Optional;
 
 @RestController
@@ -37,5 +40,24 @@ public class ComprobanteDetalleController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }   
+    } 
+
+    @PostMapping (
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+
+    public ResponseEntity<?> crearComprobanteDetalle(
+        @RequestBody ComprobanteDetalle comprobanteDetalle
+    ) {
+        try {
+            ComprobanteDetalle nuevoComprobanteDetalle = 
+                comprobanteDetalleService.crearComprobanteDetalle(comprobanteDetalle);
+            return ResponseEntity
+                .created(URI.create("/comprobantes-detalle/"+ nuevoComprobanteDetalle.getId()))
+                .body(nuevoComprobanteDetalle);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+            }
+    }
+      
 }
