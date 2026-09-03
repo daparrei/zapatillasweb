@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 
 import java.net.URI;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @RestController
 @RequestMapping("/comprobantes-detalle")
@@ -59,5 +61,21 @@ public class ComprobanteDetalleController {
             return ResponseEntity.badRequest().body(e.getMessage());
             }
     }
-      
+
+    @PutMapping(
+        value = "/{id}",
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> actualizarComprobanteDetalle(
+            @PathVariable(name = "id") Long id,
+            @RequestBody ComprobanteDetalle comprobanteDetalle
+    ) {
+        try {
+            ComprobanteDetalle comprobanteDetalleActualizado = comprobanteDetalleService.actualizarComprobanteDetalle(id, comprobanteDetalle);
+            return ResponseEntity.ok(comprobanteDetalleActualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

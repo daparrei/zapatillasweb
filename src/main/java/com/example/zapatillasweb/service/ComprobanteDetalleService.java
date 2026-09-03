@@ -166,4 +166,254 @@ public class ComprobanteDetalleService {
         return detalleGuardado;
     }
 
+    // Actualizar un detalle existente
+        public ComprobanteDetalle actualizarComprobanteDetalle(Long id, ComprobanteDetalle detalle) {
+
+                // 1. Validar ID del detalle
+                if (id == null) {
+                        throw new IllegalArgumentException(
+                                "El detalle debe tener un ID válido.");
+                }
+
+                // 2. Buscar el detalle existente
+                Optional<ComprobanteDetalle> detalleActualOptional =
+                        comprobanteDetalleRespository.findById(id);
+
+                if (detalleActualOptional.isEmpty()) {
+                        throw new IllegalArgumentException(
+                                "El detalle especificado no existe.");
+                }
+
+                ComprobanteDetalle detalleActual =
+                        detalleActualOptional.get();
+
+
+                // 3. Validar comprobante
+                if (detalle.getComprobante() == null ||
+                        detalle.getComprobante().getId() == null) {
+
+                        throw new IllegalArgumentException(
+                                "El detalle debe tener un comprobante válido.");
+                }
+
+                Long comprobanteId =
+                        detalle.getComprobante().getId();
+
+
+                // 4. Buscar comprobante real en BD
+                Optional<Comprobante> comprobanteOptional =
+                        comprobanteRepository.findById(comprobanteId);
+
+                if (comprobanteOptional.isEmpty()) {
+                        throw new IllegalArgumentException(
+                                "El comprobante especificado no existe.");
+                }
+
+                Comprobante comprobante =
+                        comprobanteOptional.get();
+
+
+                // 5. Validar estado del comprobante
+                if (comprobante.getStatus() == null ||
+                        (!comprobante.getStatus().equals("PENDIENTE") &&
+                        !comprobante.getStatus().equals("NUEVO"))) {
+
+                        throw new IllegalArgumentException(
+                                "El comprobante especificado no se puede modificar porque su estado es: "
+                                        + comprobante.getStatus());
+                }
+
+
+                // 6. Verificar que el detalle pertenezca al comprobante
+                if (detalleActual.getComprobante() == null ||
+                        !detalleActual.getComprobante()
+                                .getId()
+                                .equals(comprobanteId)) {
+
+                        throw new IllegalArgumentException(
+                                "El detalle no pertenece al comprobante especificado.");
+                }
+
+
+                // 7. Validar producto
+                if (detalle.getProducto() == null ||
+                        detalle.getProducto().getId() == null) {
+
+                        throw new IllegalArgumentException(
+                                "El detalle debe tener un producto válido.");
+                }
+
+                Long productoId =
+                        detalle.getProducto().getId();
+
+
+                // 8. Buscar producto real en BD
+                Optional<Producto> productoOptional =
+                        productoRepository.findById(productoId);
+
+                if (productoOptional.isEmpty()) {
+                        throw new IllegalArgumentException(
+                                "El producto especificado no existe.");
+                }
+
+                Producto producto =
+                        productoOptional.get();
+
+
+                // 9. No permitir cambiar producto
+                if (!detalleActual.getProducto()
+                        .getId()
+                        .equals(productoId)) {
+
+                        throw new IllegalArgumentException(
+                                "No se puede cambiar el producto de un detalle existente.");
+                }
+
+
+                // 10. Validar talle
+                if (detalle.getTalle() == null ||
+                        detalle.getTalle().isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                "El talle es obligatorio.");
+                }
+
+                String talle =
+                        detalle.getTalle();
+
+
+                // 11. No permitir cambiar talle
+                if (!detalleActual.getTalle()
+                        .equals(talle)) {
+
+                        throw new IllegalArgumentException(
+                                "No se puede cambiar el talle de un detalle existente.");
+                }
+
+
+                // 12. Validar cantidad
+                if (detalle.getCantidad() == null ||
+                        detalle.getCantidad() <= 0) {
+
+                        throw new IllegalArgumentException(
+                                "La cantidad debe ser mayor a cero.");
+                }
+
+
+                // 13. Obtener cantidades
+                int cantidadActual =
+                        detalleActual.getCantidad();
+
+                int cantidadNueva =
+                        detalle.getCantidad();
+
+                int diferenciaCantidad =
+                        cantidadNueva - cantidadActual;
+
+
+                // 14. Buscar stock del producto + talle
+                Optional<StockTalle> stockOptional =
+                        stockTalleRepository.findByProductoIdAndTalle(
+                                productoId,
+                                talle
+                        );
+
+                if (stockOptional.isEmpty()) {
+                        throw new IllegalArgumentException(
+                                "No existe stock para el producto y talle indicado.");
+                }
+
+                StockTalle stockTalle =
+                        stockOptional.get();
+
+
+                // 15. Validar stock solamente si aumenta la cantidad
+                if (diferenciaCantidad > 0 &&
+                        stockTalle.getStock() < diferenciaCantidad) {
+
+                        throw new IllegalArgumentException(
+                                "No hay stock suficiente. Stock disponible: "
+                                        + stockTalle.getStock()
+                                        + ". Cantidad adicional solicitada: "
+                                        + diferenciaCantidad);
+                }
+
+
+                // 16. Calcular importe anterior
+                BigDecimal importeDetalleActual =
+                        detalleActual.getPrecioCompra()
+                                .multiply(
+                                        BigDecimal.valueOf(cantidadActual)
+                                );
+
+
+                // 17. Actualizar stock
+                //
+                // Si aumenta cantidad:
+                // diferencia positiva → descuenta stock
+                //
+                // Si disminuye cantidad:
+                // diferencia negativa → devuelve stock
+                //
+                stockTalle.setStock(
+                        stockTalle.getStock() - diferenciaCantidad
+                );
+
+                stockTalleRepository.save(stockTalle);
+
+
+                // 18. Actualizar EL OBJETO QUE EXISTE EN BD
+                //
+                // Esto es importante.
+                // No guardamos "detalle", porque viene del RequestBody
+                // y puede no tener ID.
+                //
+                detalleActual.setCantidad(cantidadNueva);
+
+                detalleActual.setComprobante(comprobante);
+
+                detalleActual.setProducto(producto);
+
+                detalleActual.setTalle(talle);
+
+
+                // Mantener el precio original
+                detalleActual.setPrecioCompra(
+                        detalleActual.getPrecioCompra()
+                );
+
+
+                // 19. Guardar detalle existente
+                ComprobanteDetalle detalleGuardado =
+                        comprobanteDetalleRespository.save(detalleActual);
+
+
+                // 20. Calcular importe nuevo
+                BigDecimal importeDetalleNuevo =
+                        detalleGuardado.getPrecioCompra()
+                                .multiply(
+                                        BigDecimal.valueOf(cantidadNueva)
+                                );
+
+
+                // 21. Calcular diferencia
+                BigDecimal diferenciaImporte =
+                        importeDetalleNuevo
+                                .subtract(importeDetalleActual);
+
+
+                // 22. Actualizar total del comprobante
+                comprobante.setTotal(
+                        comprobante.getTotal()
+                                .add(diferenciaImporte)
+                );
+
+
+                // 23. Guardar comprobante
+                comprobanteRepository.save(comprobante);
+
+
+                // 24. Retornar detalle actualizado
+                return detalleGuardado;
+        }
 }
