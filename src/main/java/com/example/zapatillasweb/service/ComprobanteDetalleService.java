@@ -34,7 +34,7 @@ public class ComprobanteDetalleService {
         return comprobanteDetalleRespository.findById(id);
     }
 
-   public ComprobanteDetalle crearComprobanteDetalle(ComprobanteDetalle detalle) {
+    public ComprobanteDetalle crearComprobanteDetalle(ComprobanteDetalle detalle) {
 
     // 1. Validar comprobante
     if (detalle.getComprobante() == null ||
@@ -363,11 +363,6 @@ public class ComprobanteDetalleService {
 
 
                 // 18. Actualizar EL OBJETO QUE EXISTE EN BD
-                //
-                // Esto es importante.
-                // No guardamos "detalle", porque viene del RequestBody
-                // y puede no tener ID.
-                //
                 detalleActual.setCantidad(cantidadNueva);
 
                 detalleActual.setComprobante(comprobante);
@@ -416,4 +411,7 @@ public class ComprobanteDetalleService {
                 // 24. Retornar detalle actualizado
                 return detalleGuardado;
         }
+
+        
+
 }

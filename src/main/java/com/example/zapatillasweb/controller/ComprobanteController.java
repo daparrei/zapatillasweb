@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import com.example.zapatillasweb.entity.Comprobante;
 import com.example.zapatillasweb.service.ComprobanteService;
@@ -66,6 +67,18 @@ public class ComprobanteController {
         return ResponseEntity.ok(comprobanteService.obtenerComprobantes());
     }   
 
+    //Cambio de Estado de Comprobante
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<?> cambiarEstadoComprobante(
+            @PathVariable Long id,
+            @RequestBody Comprobante comprobanteActualizado) {
+        try {
+            Comprobante comprobanteActualizadoResult = comprobanteService.actualizarComprobante(id, comprobanteActualizado);
+            return ResponseEntity.ok(comprobanteActualizadoResult);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarComprobante(@PathVariable Long id) {
