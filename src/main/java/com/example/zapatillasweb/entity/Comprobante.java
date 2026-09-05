@@ -1,6 +1,6 @@
 package com.example.zapatillasweb.entity;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.ArrayList;
 
 import jakarta.persistence.Column;
@@ -29,7 +29,7 @@ public class Comprobante {
     private String status;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime  createdAt;
+    private Date createdAt;
 
     @Column(name = "total", nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
@@ -44,7 +44,7 @@ public class Comprobante {
     public Comprobante() {
     }
 
-    public Comprobante(String status, LocalDateTime createdAt, BigDecimal total, Cliente cliente) {
+    public Comprobante(String status, Date createdAt, BigDecimal total, Cliente cliente) {
         this.status = status;
         this.createdAt = createdAt;
         this.total = total;
@@ -67,11 +67,11 @@ public class Comprobante {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 

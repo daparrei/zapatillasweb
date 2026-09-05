@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service;
 import com.example.zapatillasweb.repository.ComprobanteRepository;
 import com.example.zapatillasweb.entity.Comprobante;
 import com.example.zapatillasweb.entity.ComprobanteDetalle;
-import com.example.zapatillasweb.service.StockTalleService;
 import com.example.zapatillasweb.repository.ClienteRepository;
 import com.example.zapatillasweb.entity.Cliente;
+import com.example.zapatillasweb.api.WorldclockApi;
 import java.util.Optional;
 import java.util.List;
 
@@ -16,11 +16,14 @@ public class ComprobanteService {
     private final ComprobanteRepository comprobanteRepository;
     private final ClienteRepository clienteRepository;
     private final StockTalleService stockTalleService;
+    private final WorldclockApi worldclockApi;
 
-    public ComprobanteService(ComprobanteRepository comprobanteRepository, ClienteRepository clienteRepository, StockTalleService stockTalleService) {
+
+    public ComprobanteService(ComprobanteRepository comprobanteRepository, ClienteRepository clienteRepository, StockTalleService stockTalleService, WorldclockApi worldclockApi) {
         this.comprobanteRepository = comprobanteRepository;
         this.clienteRepository = clienteRepository;
         this.stockTalleService = stockTalleService;
+        this.worldclockApi = worldclockApi;
     }
 
     public Optional<Comprobante> obtenerComprobante(Long id) {
@@ -54,7 +57,7 @@ public class ComprobanteService {
 
         //4) Si el comprobante no tiene fecha de creación, asignar la fecha actual
         if (comprobante.getCreatedAt() == null) {
-            comprobante.setCreatedAt(java.time.LocalDateTime.now());
+            comprobante.setCreatedAt(worldclockApi.getCurrentTime());
         }
 
         //5) Si el comprobante no tiene total, asignar 0
