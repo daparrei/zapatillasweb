@@ -3,11 +3,8 @@ package com.example.zapatillasweb.aspect;
 import java.util.Arrays;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -34,18 +31,30 @@ public class LogAspect {
             + "." + joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
         RequestLog requestLog = new RequestLog(url, ip, classMethod, args);
+        System.out.println("------------INICIANDO-----------------------");
         System.out.println("Request : " + requestLog);
     }
     // Define cómo completar la ejecución
     @After("log()")
     public void doAfter(){
-        System.out.println("------------doAfter-----------------------");
+        System.out.println("------------FINALIZADO-----------------------");
     }
     // Define el método para los valores devueltos por el Controller y loguea por consola
     @AfterReturning(returning = "result", pointcut = "log()")
     public void doAfterReturning(Object result){
         System.out.println("Result : " + result);
     }
+    // Calcular el tiempo de ejecución de cada request
+    @Around("log()")
+    public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+        System.out.println("Execution time: " + executionTime + " ms");
+        return result;
+    }
+
     // Define una clase interna que representa la información relevante para loguear del request
     private class RequestLog {
         private String url;
