@@ -414,6 +414,16 @@ También es posible ejecutar la aplicación directamente desde un IDE compatible
 
 ---
 
+## 📬 Colección de Postman
+
+El proyecto incluye una colección de Postman con ejemplos para probar los diferentes endpoints de la API.
+
+La colección se encuentra en:
+
+```text
+postman/CursoJava-Zapatillasweb.postman_collection.json
+```
+
 ## Acceder a la aplicación
 
 Una vez iniciada la aplicación, estará disponible en:
